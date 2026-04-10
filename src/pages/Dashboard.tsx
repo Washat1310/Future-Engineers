@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { supabase } from '../supabase';
 import { useAuth } from '../context/AuthContext';
 import QRCode from 'react-qr-code';
-import { Package, Truck, CheckCircle, Plus, Image as ImageIcon, Loader2, Sparkles, RefreshCw, Trash2 } from 'lucide-react';
+import { Package, Truck, CheckCircle, Plus, Image as ImageIcon, Loader2, Sparkles, RefreshCw, Trash2, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 
@@ -201,6 +201,53 @@ export default function Dashboard() {
     }
   };
 
+  const downloadQRCode = (cropId: string, cropName: string) => {
+    const svg = document.querySelector(`#qr-wrapper-${cropId} svg`);
+    if (!svg) return;
+    
+    const clonedSvg = svg.cloneNode(true) as SVGElement;
+    clonedSvg.setAttribute('width', '1024');
+    clonedSvg.setAttribute('height', '1024');
+    
+    const svgData = new XMLSerializer().serializeToString(clonedSvg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    
+    img.onload = () => {
+      if (ctx) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, 1024, 1024);
+        const pngFile = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.download = `${cropName.replace(/\s+/g, '_')}_QR.png`;
+        downloadLink.href = pngFile;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(svgUrl);
+      }
+    };
+
+    img.onerror = () => {
+      // Fallback to SVG if canvas fails
+      const downloadLink = document.createElement("a");
+      downloadLink.download = `${cropName.replace(/\s+/g, '_')}_QR.svg`;
+      downloadLink.href = svgUrl;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    };
+    
+    img.src = svgUrl;
+  };
+
   // Summary Stats
   const totalCrops = crops.length;
   const inTransit = crops.filter(c => c.status === 'Transport').length;
@@ -329,8 +376,16 @@ export default function Dashboard() {
               >
                 {/* QR Code binds to Crop ID visually and allows scanning to update status */}
                 <div className="flex-shrink-0 bg-stone-50 dark:bg-white p-4 rounded-xl border border-stone-100 dark:border-stone-200 flex flex-col items-center justify-center">
-                  <QRCode value={`${window.location.origin}/update-status?id=${crop.cropId}`} size={100} />
+                  <div id={`qr-wrapper-${crop.cropId}`}>
+                    <QRCode value={`${window.location.origin}/update-status?id=${crop.cropId}`} size={100} />
+                  </div>
                   <p className="mt-2 font-mono font-bold text-[#2D5A27] tracking-widest">{crop.cropId}</p>
+                  <button 
+                    onClick={() => downloadQRCode(crop.cropId, crop.name)}
+                    className="mt-2 flex items-center text-xs font-bold text-stone-600 hover:text-[#2D5A27] transition-colors"
+                  >
+                    <Download className="w-3 h-3 mr-1" /> Download QR
+                  </button>
                 </div>
                 
                 <div className="flex-grow">
