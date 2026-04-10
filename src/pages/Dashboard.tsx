@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { supabase } from '../supabase';
 import { useAuth } from '../context/AuthContext';
 import QRCode from 'react-qr-code';
-import { Package, Truck, CheckCircle, Plus, Image as ImageIcon, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { Package, Truck, CheckCircle, Plus, Image as ImageIcon, Loader2, Sparkles, RefreshCw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 
@@ -109,6 +109,30 @@ export default function Dashboard() {
         console.error("Supabase sync error:", supaErr);
       }
 
+      // Submit to Formspree
+      try {
+        await fetch('https://formspree.io/f/mvzvjjjg', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            cropId: newCrop.cropId,
+            userEmail: user.email,
+            name: newCrop.name,
+            quantity: newCrop.quantity,
+            phone: newCrop.phone,
+            address: newCrop.address,
+            qualityGrade: newCrop.qualityGrade,
+            status: newCrop.status,
+            createdAt: newCrop.createdAt
+          })
+        });
+      } catch (formspreeErr) {
+        console.error("Formspree sync error:", formspreeErr);
+      }
+
       setName('');
       setQuantity('');
       setPhone('');
@@ -132,6 +156,23 @@ export default function Dashboard() {
       await updateDoc(doc(db, 'crops', id), { status: newStatus });
     } catch (error) {
       alert('Failed to update status');
+    }
+  };
+
+  const handleDeleteCrop = async (id: string, cropId: string) => {
+    try {
+      // Delete from Firestore
+      await deleteDoc(doc(db, 'crops', id));
+      
+      // Delete from Supabase
+      try {
+        await supabase.from('crops').delete().eq('crop_id', cropId);
+      } catch (supaErr) {
+        console.error("Supabase delete error:", supaErr);
+      }
+    } catch (error) {
+      console.error('Failed to delete crop:', error);
+      alert('Failed to delete crop');
     }
   };
 
@@ -295,9 +336,18 @@ export default function Dashboard() {
                 <div className="flex-grow">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">{crop.name}</h3>
-                    <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs font-bold px-3 py-1 rounded-full">
-                      {crop.quantity} kg
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs font-bold px-3 py-1 rounded-full">
+                        {crop.quantity} kg
+                      </span>
+                      <button 
+                        onClick={() => handleDeleteCrop(crop.id, crop.cropId)}
+                        className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 p-1.5 rounded-lg transition-colors"
+                        title="Delete Crop"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   
                   {crop.qualityGrade && (
