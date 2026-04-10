@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-900 transition-colors duration-300;
+    background-image: radial-gradient(#d6d3d1 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .dark body {
+    @apply bg-stone-950 text-stone-100;
+    background-image: radial-gradient(#292524 1px, transparent 1px);
+  }
+}

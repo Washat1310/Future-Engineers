@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "A user of the platform (farmer or admin)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User role" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["name", "email", "role", "createdAt"]
+    },
+    "rentalItem": {
+      "title": "Rental Item",
+      "description": "Equipment available for rent",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the equipment" },
+        "description": { "type": "string", "description": "Details about the equipment" },
+        "price": { "type": "number", "description": "Rental price per day" },
+        "imageUrl": { "type": "string", "description": "Image URL" },
+        "category": { "type": "string", "description": "Equipment category" },
+        "available": { "type": "boolean", "description": "Is it currently available?" }
+      },
+      "required": ["name", "description", "price", "imageUrl", "category", "available"]
+    },
+    "rentalOrder": {
+      "title": "Rental Order",
+      "description": "An order placed by a user to rent equipment",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user who rented" },
+        "rentalItemId": { "type": "string", "description": "ID of the rented item" },
+        "startDate": { "type": "string", "description": "Start date of rental" },
+        "endDate": { "type": "string", "description": "End date of rental" },
+        "status": { "type": "string", "enum": ["pending", "active", "completed", "cancelled"], "description": "Order status" },
+        "trackingStatus": { "type": "string", "enum": ["processing", "shipped", "delivered", "returned"], "description": "Tracking status" },
+        "totalAmount": { "type": "number", "description": "Total cost" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Order creation timestamp" }
+      },
+      "required": ["userId", "rentalItemId", "startDate", "endDate", "status", "trackingStatus", "totalAmount", "createdAt"]
+    },
+    "expert": {
+      "title": "Expert",
+      "description": "Agricultural expert or doctor",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Expert's name" },
+        "department": { "type": "string", "description": "Specialization department" },
+        "bio": { "type": "string", "description": "Short biography" },
+        "imageUrl": { "type": "string", "description": "Profile image URL" }
+      },
+      "required": ["name", "department", "bio", "imageUrl"]
+    },
+    "appointment": {
+      "title": "Appointment",
+      "description": "Booking with an expert",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user booking" },
+        "expertId": { "type": "string", "description": "ID of the expert" },
+        "date": { "type": "string", "description": "Appointment date" },
+        "time": { "type": "string", "description": "Appointment time" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"], "description": "Appointment status" },
+        "notes": { "type": "string", "description": "Additional notes from user" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Booking timestamp" }
+      },
+      "required": ["userId", "expertId", "date", "time", "status", "createdAt"]
+    },
+    "report": {
+      "title": "Report",
+      "description": "Soil/Crop report uploaded by user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user" },
+        "title": { "type": "string", "description": "Report title" },
+        "fileUrl": { "type": "string", "description": "URL to the report file" },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "Upload timestamp" }
+      },
+      "required": ["userId", "title", "fileUrl", "uploadedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/user" },
+      "description": "User profiles"
+    },
+    "/rentalItems/{itemId}": {
+      "schema": { "$ref": "#/entities/rentalItem" },
+      "description": "Available rental equipment"
+    },
+    "/rentalOrders/{orderId}": {
+      "schema": { "$ref": "#/entities/rentalOrder" },
+      "description": "User rental orders"
+    },
+    "/experts/{expertId}": {
+      "schema": { "$ref": "#/entities/expert" },
+      "description": "Agricultural experts"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/appointment" },
+      "description": "User appointments with experts"
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/report" },
+      "description": "User uploaded reports"
+    }
+  }
+}

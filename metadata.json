@@ -1,0 +1,5 @@
+{
+  "name": "Fasal Track",
+  "description": "A modern agriculture and farming platform with equipment rental, expert appointments, and user dashboards.",
+  "requestFramePermissions": ["camera"]
+}
