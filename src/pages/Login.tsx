@@ -27,15 +27,33 @@ export default function Login() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex bg-stone-50 dark:bg-stone-950 transition-colors duration-300">
-      {/* Left side - Image */}
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <img 
-          src="https://images.unsplash.com/photo-1586771107445-d3af11116fd1?q=80&w=1080&auto=format&fit=crop" 
-          alt="Lush green farm" 
+      {/* Left side - Video Background */}
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
           className="absolute inset-0 w-full h-full object-cover"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-[#2D5A27]/20 dark:bg-stone-900/40 mix-blend-multiply"></div>
+        >
+          <source src="https://assets.mixkit.co/videos/34045/34045-720.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        {/* Gradient overlays for a premium 3D cinematic feel */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#2D5A27]/40 to-transparent dark:from-stone-900/80 dark:to-stone-900/20 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        
+        {/* Decorative text overlay */}
+        <div className="absolute bottom-12 left-12 right-12 z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <h3 className="text-white text-4xl font-extrabold mb-2 drop-shadow-lg">The Future of Farming</h3>
+            <p className="text-stone-200 text-lg font-medium drop-shadow-md max-w-md">Track your crops, manage logistics, and optimize your agricultural supply chain with real-time data.</p>
+          </motion.div>
+        </div>
       </div>
 
       {/* Right side - Login Form */}
